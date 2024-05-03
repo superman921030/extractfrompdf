@@ -31,14 +31,15 @@ for file_name in pdf_files:
         page = pdf_doc[page_num]
         text_content += page.get_text()
 
-        for img_ref in page.get_images(full=True):
-            img_data = pdf_doc.extract_image(img_ref)
-            img_path = f'{file_name}_page_{page_num}_image_{img_ref[0]}.png'
+        for img_info in page.get_images(full=True):
+            xref = img_info[0]  # xref is the first item in the tuple
+            img_data = pdf_doc.extract_image(xref)  # Pass the correct xref
+            img_path = f'{file_name}_page_{page_num}_image_{xref}.png'
             with open(img_path, 'wb') as img_file:
                 img_file.write(img_data['image'])
             image_paths.append(img_path)
 
-        # tick_box_selections.extend(extract_tick_box_selections(page))
+        tick_box_selections.extend(extract_tick_box_selections(page))
 
     pdf_data = pdf_data.append({'File Name': file_name, 
                                 'Text Content': text_content,
@@ -46,5 +47,4 @@ for file_name in pdf_files:
                                 'Tick Box Selections': ','.join(tick_box_selections)}, 
                                 ignore_index=True)
 
-print("###################")
 pdf_data.to_excel('pdf_data.xlsx', index=False)
